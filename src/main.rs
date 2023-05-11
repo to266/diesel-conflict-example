@@ -50,10 +50,9 @@ fn main() {
             my_table::origin.eq(DbEnum::Normal),
             my_table::content.eq("two"),
         ))
-        // Adding the commented lines below actually breaks
-        // .on_conflict((my_table::name, my_table::origin))
-        // .filter_target(my_table::origin.eq(DbEnum::Special))
-        // .do_nothing()
+        .on_conflict((my_table::name, my_table::origin))
+        .filter_target(my_table::origin.ne(DbEnum::Special))
+        .do_nothing()
         .execute(&mut conn)
         .expect("Counld not insert without any conflict");
     diesel::insert_into(my_table::table)
@@ -63,7 +62,7 @@ fn main() {
             my_table::content.eq("two"),
         ))
         .on_conflict((my_table::name, my_table::origin))
-        .filter_target(my_table::origin.eq(DbEnum::Special))
+        .filter_target(my_table::origin.ne(DbEnum::Special))
         .do_update()
         .set(my_table::content.eq(excluded(my_table::content)))
         .execute(&mut conn)
